@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sitexray": {
+      "type": "http",
+      "url": "https://sitexray.net/mcp"
+    }
+  }
+}
