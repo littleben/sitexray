@@ -1,0 +1,4 @@
+interface:
+  display_name: "SiteXray"
+  short_description: "Review web code or scan a public site for security issues"
+  default_prompt: "Use $sitexray to check this web project for security issues and explain the findings."
