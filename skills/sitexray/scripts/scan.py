@@ -4,6 +4,7 @@
 import argparse
 import ipaddress
 import json
+import re
 import sys
 import uuid
 from urllib.error import HTTPError, URLError
@@ -47,13 +48,18 @@ def normalize_url(value):
     return value
 
 
-def scan(url, authorized=False, locale="en"):
+def scan(url, authorized=False, locale="en", node_version=None):
     if not authorized:
         raise ValueError("Pass --authorized only when the user owns or has permission to test this website.")
     target = normalize_url(url)
+    payload = {"url": target, "authorized": True}
+    if node_version is not None:
+        if not re.fullmatch(r"v?(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})", node_version.strip()):
+            raise ValueError("Provide a complete stable Node.js version, such as v22.23.2.")
+        payload["nodeVersion"] = node_version.strip()
     request = Request(
         API_URL,
-        data=json.dumps({"url": target, "authorized": True}).encode("utf-8"),
+        data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -103,9 +109,10 @@ def main(argv=None):
     parser.add_argument("--authorized", action="store_true", help="The user owns, manages or has permission to test the target")
     parser.add_argument("--json", action="store_true", help="Print the report as JSON")
     parser.add_argument("--locale", choices=("en", "zh"), default="en", help="Language of the shareable report link")
+    parser.add_argument("--node-version", help="Node.js version observed inside the deployed service (owner-provided)")
     args = parser.parse_args(argv)
     try:
-        report = scan(args.url, authorized=args.authorized, locale=args.locale)
+        report = scan(args.url, authorized=args.authorized, locale=args.locale, node_version=args.node_version)
     except (ValueError, RuntimeError, URLError, TimeoutError, OSError) as error:
         print("SiteXray: {}".format(error), file=sys.stderr)
         return 1

@@ -72,3 +72,9 @@ Respect HTTP 429 and `Retry-After`; the service currently limits calls to one pe
 - Suggest local source review when the deployed scan cannot answer the user's question. Do not silently expand a scan into exploitation or changes to production.
 
 Website: https://sitexray.net · Skill and installation: https://sitexray.net/skill · Source: https://github.com/littleben/sitexray
+
+## Verify Node.js runtime patches
+
+A hidden runtime version is unverified, never a passed patch check. Hosted scans compare explicit Node.js headers against supported security releases and show unknown coverage when a Node.js framework exposes no runtime version. Do not infer the deployed patch version from Next.js, Express, Vercel, a floating Docker tag, or the agent workstation.
+
+For an authorized owner, obtain `node --version` inside the deployed service through its CLI or SSH. Supply the result as optional `nodeVersion` in `scan_website` or `/api/scan`, or use `scan.py URL --authorized --node-version v22.23.2`. Reports label this input as owner-provided; it does not replace confirming the running build or vendor backports. The October 2026 fixes are 22.23.4, 24.22.1 and 26.12.1 (CVE-2026-111497 and other advisories).
